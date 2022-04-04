@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { isEmail } = require('validator');
-const { AuthError } = require('../errors/AuthError');
+const AuthError = require('../errors/AuthError');
 
 function checkLink(v) {
   const regex = /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/gi;

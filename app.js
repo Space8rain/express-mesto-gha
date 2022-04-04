@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
-const { NotFoundError } = require('./errors/NotFoundError');
-const { errorHandler } = require('./errors/errorHandler');
+const NotFoundError = require('./errors/NotFoundError');
+const errorHandler = require('./errors/errorHandler');
 const { userValidator } = require('./middlewares/userValidator');
 
 const { createUser, login } = require('./controllers/users');
@@ -34,14 +34,14 @@ app.post('/signup', celebrate({
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
+// При неизветсном маршруте выбрасываем ошибку
+app.use(auth, (req, res, next) => {
+  next(new NotFoundError('404 Ресурс не найден'));
+});
 // Обработка ошибок celebrate
 app.use(errors());
 // При неизвестной ошибке выбрасываем 500
 app.use(errorHandler);
-// При неизветсном маршруте выбрасываем ошибку
-app.use((req, res, next) => {
-  next(new NotFoundError('404 Ресурс не найден'));
-});
 
 // Подключение к БД
 mongoose.connect('mongodb://localhost:27017/mestodb');
