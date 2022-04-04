@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { isEmail } = require('validator');
-const { NotFoundError } = require('../errors/errors');
+const { AuthError } = require('../errors/AuthError');
 
 function checkLink(v) {
   const regex = /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/gi;
@@ -52,13 +52,13 @@ userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Неправильные почта или пароль');
+        throw new AuthError('Неправильные почта или пароль');
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new NotFoundError('Неправильные почта или пароль');
+            throw new AuthError('Неправильные почта или пароль');
           }
           return user;
         });

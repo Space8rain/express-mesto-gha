@@ -1,21 +1,15 @@
 const jwt = require('jsonwebtoken');
-const { checkError } = require('../errors/errors');
+const { AuthError } = require('../errors/AuthError');
 
 module.exports = (req, res, next) => {
-  // Достаем авторизованый заголовок
-  const { auth } = req.headers;
-  // Проверяем его наличие или начало с Bearer
-  if (!auth || !auth.startsWith('Bearer ')) {
-    return res.status(401).send({ message: 'Необходима авторизация' });
-  }
-  // В токен записываем JWT
-  const token = auth.replace('Bearer ', '');
+  // В токен записываем JWT из cookie
+  const token = req.cookies.jwt;
   let payload;
-  // Проверяем токен из заголовка с выданным ранее
+  // Проверяем токен из cookie с выданным ранее
   try {
     payload = jwt.verify(token, 'secret-key');
   } catch (err) {
-    return checkError(err, res);
+    throw new AuthError('Необходима авторизацияя');
   }
   // Записываем пейлоуд в запрос
   req.user = payload;
