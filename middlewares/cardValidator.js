@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const isURL = require('validator');
+const { isURL } = require('validator');
 
 const validateURL = (value) => {
   if (!isURL(value, { require_protocol: true })) {
