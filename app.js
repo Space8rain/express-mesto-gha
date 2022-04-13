@@ -6,6 +6,7 @@ const { celebrate, Joi, errors } = require('celebrate');
 const NotFoundError = require('./errors/NotFoundError');
 const errorHandler = require('./errors/errorHandler');
 const { userValidator } = require('./middlewares/userValidator');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -16,8 +17,12 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
+// Подключаем парсеры для куки и тел запросов
 app.use(cookieParser());
 app.use(bodyParser.json());
+
+// Подключаем логер запросов
+app.use(requestLogger);
 
 app.post('/signin', userValidator, login);
 
@@ -33,6 +38,9 @@ app.post('/signup', celebrate({
 
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
+
+// Подключаем логер ошибок
+app.use(errorLogger);
 
 // При неизветсном маршруте выбрасываем ошибку
 app.use(auth, (req, res, next) => {
