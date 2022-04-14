@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const { celebrate, Joi, errors } = require('celebrate');
 const NotFoundError = require('./errors/NotFoundError');
 const errorHandler = require('./errors/errorHandler');
@@ -17,12 +18,23 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
+app.use(cors({
+  origin: 'https://mestofront12.students.nomoredomains.work',
+  credentials: true,
+}));
+
 // Подключаем парсеры для куки и тел запросов
 app.use(cookieParser());
 app.use(bodyParser.json());
 
 // Подключаем логер запросов
 app.use(requestLogger);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signin', userValidator, login);
 
