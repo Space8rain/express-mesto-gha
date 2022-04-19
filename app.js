@@ -9,7 +9,7 @@ const errorHandler = require('./errors/errorHandler');
 const { userValidator } = require('./middlewares/userValidator');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { createUser, login } = require('./controllers/users');
+const { createUser, login, logOut } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
 const regex = /(https?:\/\/)(w{3}\.)?(((\d{1,3}\.){3}\d{1,3})|((\w-?)+\.))(:\d{2,5})?((\/.+)+)?\/?#?/;
@@ -18,10 +18,25 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-app.use(cors({
-  origin: 'https://mestofront12.students.nomoredomains.work',
+const allowedCors = [
+  'http://localhost:3001',
+  'https://itbro.su/',
+  'http://itbro.su/',
+];
+
+const corsOptions = {
   credentials: true,
-}));
+  origin(origin, callback) {
+    if (allowedCors.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors());
 
 // Подключаем парсеры для куки и тел запросов
 app.use(cookieParser());
@@ -47,6 +62,8 @@ app.post('/signup', celebrate({
     avatar: Joi.string().pattern(regex),
   }),
 }), createUser);
+
+app.delete('/logout', logOut);
 
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));

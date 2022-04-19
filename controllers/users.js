@@ -121,3 +121,8 @@ module.exports.login = (req, res, next) => {
     })
     .catch(next);
 };
+
+module.exports.logOut = (req, res, next) => {
+  res.clearCookie('jwt').send({ message: 'Пользователь вышел' });
+  next();
+};
